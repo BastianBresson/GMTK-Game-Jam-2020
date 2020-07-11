@@ -27,6 +27,14 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
+                    ""name"": ""Steering"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""2da96c32-2bd2-4db6-94b4-4f4731b724a5"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
                     ""name"": ""Menu"",
                     ""type"": ""Button"",
                     ""id"": ""91975b11-d65a-4a77-8cff-84c2f52043a1"",
@@ -37,7 +45,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
             ],
             ""bindings"": [
                 {
-                    ""name"": ""WASD"",
+                    ""name"": ""WS"",
                     ""id"": ""41a65b43-37b2-4869-8f04-e4234c6cea99"",
                     ""path"": ""2DVector"",
                     ""interactions"": """",
@@ -92,6 +100,39 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
+                    ""name"": ""AD"",
+                    ""id"": ""bbb1d692-ee6f-4155-9b39-f879b6801f13"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Steering"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""99c3b45a-abf2-4d8b-9cca-b71c0e0a7fa6"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Steering"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""f532d087-2470-4765-8fde-e21da6b2a604"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Steering"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
                     ""name"": """",
                     ""id"": ""ed2690dd-2916-4372-9e68-3727c84f005c"",
                     ""path"": ""<Keyboard>/escape"",
@@ -110,6 +151,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         // Inputs
         m_Inputs = asset.FindActionMap("Inputs", throwIfNotFound: true);
         m_Inputs_Movement = m_Inputs.FindAction("Movement", throwIfNotFound: true);
+        m_Inputs_Steering = m_Inputs.FindAction("Steering", throwIfNotFound: true);
         m_Inputs_Menu = m_Inputs.FindAction("Menu", throwIfNotFound: true);
     }
 
@@ -161,12 +203,14 @@ public class @InputMaster : IInputActionCollection, IDisposable
     private readonly InputActionMap m_Inputs;
     private IInputsActions m_InputsActionsCallbackInterface;
     private readonly InputAction m_Inputs_Movement;
+    private readonly InputAction m_Inputs_Steering;
     private readonly InputAction m_Inputs_Menu;
     public struct InputsActions
     {
         private @InputMaster m_Wrapper;
         public InputsActions(@InputMaster wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_Inputs_Movement;
+        public InputAction @Steering => m_Wrapper.m_Inputs_Steering;
         public InputAction @Menu => m_Wrapper.m_Inputs_Menu;
         public InputActionMap Get() { return m_Wrapper.m_Inputs; }
         public void Enable() { Get().Enable(); }
@@ -180,6 +224,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Movement.started -= m_Wrapper.m_InputsActionsCallbackInterface.OnMovement;
                 @Movement.performed -= m_Wrapper.m_InputsActionsCallbackInterface.OnMovement;
                 @Movement.canceled -= m_Wrapper.m_InputsActionsCallbackInterface.OnMovement;
+                @Steering.started -= m_Wrapper.m_InputsActionsCallbackInterface.OnSteering;
+                @Steering.performed -= m_Wrapper.m_InputsActionsCallbackInterface.OnSteering;
+                @Steering.canceled -= m_Wrapper.m_InputsActionsCallbackInterface.OnSteering;
                 @Menu.started -= m_Wrapper.m_InputsActionsCallbackInterface.OnMenu;
                 @Menu.performed -= m_Wrapper.m_InputsActionsCallbackInterface.OnMenu;
                 @Menu.canceled -= m_Wrapper.m_InputsActionsCallbackInterface.OnMenu;
@@ -190,6 +237,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Movement.started += instance.OnMovement;
                 @Movement.performed += instance.OnMovement;
                 @Movement.canceled += instance.OnMovement;
+                @Steering.started += instance.OnSteering;
+                @Steering.performed += instance.OnSteering;
+                @Steering.canceled += instance.OnSteering;
                 @Menu.started += instance.OnMenu;
                 @Menu.performed += instance.OnMenu;
                 @Menu.canceled += instance.OnMenu;
@@ -200,6 +250,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
     public interface IInputsActions
     {
         void OnMovement(InputAction.CallbackContext context);
+        void OnSteering(InputAction.CallbackContext context);
         void OnMenu(InputAction.CallbackContext context);
     }
 }

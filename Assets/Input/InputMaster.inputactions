@@ -14,6 +14,14 @@
                     "interactions": ""
                 },
                 {
+                    "name": "Steering",
+                    "type": "PassThrough",
+                    "id": "2da96c32-2bd2-4db6-94b4-4f4731b724a5",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
                     "name": "Menu",
                     "type": "Button",
                     "id": "91975b11-d65a-4a77-8cff-84c2f52043a1",
@@ -24,7 +32,7 @@
             ],
             "bindings": [
                 {
-                    "name": "WASD",
+                    "name": "WS",
                     "id": "41a65b43-37b2-4869-8f04-e4234c6cea99",
                     "path": "2DVector",
                     "interactions": "",
@@ -75,6 +83,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "AD",
+                    "id": "bbb1d692-ee6f-4155-9b39-f879b6801f13",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Steering",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "left",
+                    "id": "99c3b45a-abf2-4d8b-9cca-b71c0e0a7fa6",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Steering",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "f532d087-2470-4765-8fde-e21da6b2a604",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Steering",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },

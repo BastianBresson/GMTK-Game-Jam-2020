@@ -13,13 +13,20 @@ public class InputHandling : MonoBehaviour
     private void Awake()
     {
         controls = new InputMaster();
-        controls.Inputs.Movement.performed += context => InputDirection(context.ReadValue<Vector2>());
+        controls.Inputs.Movement.performed += context => InputMovement(context.ReadValue<Vector2>());
+        controls.Inputs.Steering.performed += context => InputSteering(context.ReadValue<Vector2>());
         controls.Inputs.Menu.performed += _ => InputMenu();
     }
 
-    private void InputDirection(Vector2 inputDirection)
+    private void InputMovement(Vector2 inputMovement)
     {
-        player.SetMoveDireciton(inputDirection.y);
+        player.SetMoveDireciton(inputMovement.y);
+    }
+
+
+    private void InputSteering(Vector2 inputSteering)
+    {
+        player.SetSteeringDirection(inputSteering.x);
     }
 
 

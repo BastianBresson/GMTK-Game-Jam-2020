@@ -14,8 +14,13 @@ public class GameManager : MonoBehaviour
     #endregion
 
     [SerializeField] private List<GameObject> levels = default;
+    public int currentLevel { get; private set; } = 0;
 
-    int currentLevel = 0;
+
+    [SerializeField] private GameObject playerGO = default;
+    private Player player;
+    private Vector3 checkpointPosition;
+    private Vector3 playerStartPosition;
 
     public void ChangeLevel(int level)
     {
@@ -29,16 +34,15 @@ public class GameManager : MonoBehaviour
     {
         if (currentLevel == 8) // Last Level
         {
-            ResetPlayerPosition();
+            ResetPlayerPositionToStart();
         }
         else
         {
             int lvl = currentLevel + 1;
-            ResetPlayerPosition();
+            ResetPlayerPositionToStart();
             SwitchLevel(lvl);
         }
     }
-
 
     private void SwitchLevel(int lvl)
     {
@@ -48,9 +52,35 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private void ResetPlayerPosition()
+    public void OnCheckpointReached(Vector3 checkpointPosition)
     {
-
+        this.checkpointPosition = checkpointPosition;
+        this.checkpointPosition.y = 2;
     }
 
+
+    public void OnPlayerFall()
+    {
+        ResetPlayerPositionToCheckpoint();
+    }
+
+
+    private void Start()
+    {
+        playerStartPosition = playerGO.transform.position;
+        playerStartPosition.y = 2;
+        checkpointPosition = playerStartPosition;
+        player = playerGO.GetComponent<Player>();
+    }
+
+
+    private void ResetPlayerPositionToStart()
+    {
+        player.ResetPosition(playerStartPosition);
+    }
+
+    private void ResetPlayerPositionToCheckpoint()
+    {
+        player.ResetPosition(checkpointPosition);
+    }
 }
