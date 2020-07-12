@@ -6,9 +6,16 @@ public class SafetyNet : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("Player")) return;
+        if (other.CompareTag("Player"))
+        {
+            GameManager.Instance.OnPlayerFall();
+        }
+        else if (other.CompareTag("ProjectileCube"))
+        {
+            other.gameObject.SetActive(false);
+        }
 
-        GameManager.Instance.OnPlayerFall();
+        
 
     }
 

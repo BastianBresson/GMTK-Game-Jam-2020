@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class VictorySafetyNet : MonoBehaviour
 {
-    [SerializeField] private GameObject player;
+    [SerializeField] private GameObject player = default;
 
     private Vector3 playerStartPosition;
 

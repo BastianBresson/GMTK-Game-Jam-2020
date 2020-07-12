@@ -29,7 +29,7 @@ public class CheckPoint : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (isActiveCheckPoint) return;
+        if (isActiveCheckPoint || !other.CompareTag("Player")) return;
 
         GameManager.Instance.OnCheckpointReached(this);
 

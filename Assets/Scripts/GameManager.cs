@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -41,6 +42,8 @@ public class GameManager : MonoBehaviour
     {
         completedLevels[currentLevel] = true;
 
+        CheckAllLevelsComplete();
+
         if (currentLevel == 8) // Last Level
         {
             ResetPlayerPositionToStart();
@@ -55,6 +58,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
     private void SwitchLevel(int lvl)
     {
         levels[currentLevel].SetActive(false);
@@ -62,10 +66,27 @@ public class GameManager : MonoBehaviour
         levels[lvl].SetActive(true);
     }
 
+
+    private void CheckAllLevelsComplete()
+    {
+        for (int i = 0; i < completedLevels.Count; i++)
+        {
+            if (!completedLevels[i])
+            {
+                return;
+            }
+        }
+
+        AudioManager.Instance.OnGameCompleted();
+        SceneManager.LoadScene("VictoryScene");
+    }
+
+
     public bool IsLevelComplete(int level)
     {
         return completedLevels[level];
     }
+
 
     public void OnCheckpointReached(CheckPoint checkPoint)
     {
@@ -73,6 +94,7 @@ public class GameManager : MonoBehaviour
         this.checkpointPosition = checkPoint.transform.position;
         this.checkpointPosition.y = 2;
     }
+
 
     private void ResetCheckPoint()
     {
@@ -105,6 +127,7 @@ public class GameManager : MonoBehaviour
     {
         player.ResetPosition(playerStartPosition);
     }
+
 
     private void ResetPlayerPositionToCheckpoint()
     {
