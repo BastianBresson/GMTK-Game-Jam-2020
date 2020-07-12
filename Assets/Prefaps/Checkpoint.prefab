@@ -71,8 +71,9 @@ MonoBehaviour:
   acsents:
   - {fileID: 8228706840992802278}
   - {fileID: 8228706840138278693}
-  targetEmissionIntensity: 4
-  turnOnAcsentsTime: 1
+  targetEmissionIntensity: 5
+  turnOnAcsentsTime: 0.5
+  checkpointPrefap: {fileID: 6298383156082640631}
 --- !u!1001 &6574040888051835888
 PrefabInstance:
   m_ObjectHideFlags: 0

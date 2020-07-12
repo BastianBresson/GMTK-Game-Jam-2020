@@ -2,12 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CanvasHandling : MonoBehaviour
 {
     [SerializeField] GameObject UI = default;
 
     [SerializeField] List<GameObject> levelButtons = default;
+
+    public Color completedColor = default;
 
     private int markedButton;
 
@@ -33,6 +36,7 @@ public class CanvasHandling : MonoBehaviour
         Time.timeScale = 0.2f;
         Time.fixedDeltaTime = 0.2f * 0.02f;
 
+        CheckAndMarkCompletedLevel();
         MarkSelectedLevel();
     }
 
@@ -46,9 +50,22 @@ public class CanvasHandling : MonoBehaviour
     }
 
 
+    private void CheckAndMarkCompletedLevel()
+    {
+        if (isGameJustStart || levelButtons.Count == 0) return;
+        for (int i = 0; i < levelButtons.Count; i++)
+        {
+            if (GameManager.Instance.IsLevelComplete(i))
+            {
+                levelButtons[i].GetComponent<Image>().color = completedColor;
+            }
+        }
+    }
+
+
     private void MarkSelectedLevel()
     {
-        if (isGameJustStart) return;
+        if (isGameJustStart || levelButtons.Count == 0) return;
 
         int currentSelectedLevel = GameManager.Instance.currentLevel;
 
@@ -60,6 +77,7 @@ public class CanvasHandling : MonoBehaviour
 
     private void UnmarkSelectedLevel()
     {
+        if (levelButtons.Count == 0) return;
         RectTransform button = levelButtons[markedButton].GetComponent<RectTransform>();
         button.sizeDelta = new Vector2(130, 110);
 
@@ -68,5 +86,4 @@ public class CanvasHandling : MonoBehaviour
             isGameJustStart = false;
         }
     }
-
 }

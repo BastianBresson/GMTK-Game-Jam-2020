@@ -4,10 +4,14 @@ using UnityEngine;
 
 public class CheckPoint : MonoBehaviour
 {
+    private static CheckPoint activeCheckPoint;
+
     [SerializeField] private List<GameObject> acsents = default;
 
     [SerializeField] float targetEmissionIntensity = default;
     [SerializeField] float turnOnAcsentsTime = default;
+
+    [SerializeField] private GameObject checkpointPrefap = default;
 
     private bool isActiveCheckPoint = false;
 
@@ -21,14 +25,20 @@ public class CheckPoint : MonoBehaviour
         {
             acsent.GetComponent<Renderer>().material.SetColor("_EmissionColor", emisionColor / targetEmissionIntensity);
         }
-        
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (isActiveCheckPoint) return;
 
-        GameManager.Instance.OnCheckpointReached(transform.position);
+        GameManager.Instance.OnCheckpointReached(this);
+
+        if (activeCheckPoint != null)
+        {
+            activeCheckPoint.TurnOff();
+        }
+
+        activeCheckPoint = this;
 
         isActiveCheckPoint = true;
         StartCoroutine(TurnOnAcsentsCoroutine());
@@ -53,4 +63,11 @@ public class CheckPoint : MonoBehaviour
         }
 
     }
+
+    public void TurnOff()
+    {
+        Instantiate(checkpointPrefap, transform.position, transform.rotation);
+        Destroy(gameObject);
+    }
+
 }

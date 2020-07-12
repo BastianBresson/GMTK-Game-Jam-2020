@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,14 +17,20 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<GameObject> levels = default;
     public int currentLevel { get; private set; } = 0;
 
+    Dictionary<int, bool> completedLevels = new Dictionary<int, bool>();
 
     [SerializeField] private GameObject playerGO = default;
     private Player player;
+    private CheckPoint currentCheckPoint;
     private Vector3 checkpointPosition;
     private Vector3 playerStartPosition;
 
+    [SerializeField] List<GameObject> probes = default;
+
     public void ChangeLevel(int level)
     {
+        StartCoroutine(RefreshProbes());
+
         int lvl = level - 1;
         if (lvl == currentLevel) return;
 
@@ -32,6 +39,8 @@ public class GameManager : MonoBehaviour
 
     public void OnLevelComplete()
     {
+        completedLevels[currentLevel] = true;
+
         if (currentLevel == 8) // Last Level
         {
             ResetPlayerPositionToStart();
@@ -41,6 +50,8 @@ public class GameManager : MonoBehaviour
             int lvl = currentLevel + 1;
             ResetPlayerPositionToStart();
             SwitchLevel(lvl);
+            StartCoroutine(RefreshProbes());
+            ResetCheckPoint();
         }
     }
 
@@ -51,11 +62,25 @@ public class GameManager : MonoBehaviour
         levels[lvl].SetActive(true);
     }
 
-
-    public void OnCheckpointReached(Vector3 checkpointPosition)
+    public bool IsLevelComplete(int level)
     {
-        this.checkpointPosition = checkpointPosition;
+        return completedLevels[level];
+    }
+
+    public void OnCheckpointReached(CheckPoint checkPoint)
+    {
+        currentCheckPoint = checkPoint;
+        this.checkpointPosition = checkPoint.transform.position;
         this.checkpointPosition.y = 2;
+    }
+
+    private void ResetCheckPoint()
+    {
+        checkpointPosition = playerStartPosition;
+        if (currentCheckPoint != null)
+        {
+            currentCheckPoint.TurnOff();
+        }
     }
 
 
@@ -71,6 +96,8 @@ public class GameManager : MonoBehaviour
         playerStartPosition.y = 2;
         checkpointPosition = playerStartPosition;
         player = playerGO.GetComponent<Player>();
+
+        SetCompletedLevels();
     }
 
 
@@ -83,4 +110,25 @@ public class GameManager : MonoBehaviour
     {
         player.ResetPosition(checkpointPosition);
     }
+
+
+    private void SetCompletedLevels()
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            completedLevels.Add(i, false);
+        }
+    }
+
+
+    IEnumerator RefreshProbes()
+    {
+        yield return new WaitForFixedUpdate();
+
+        foreach (GameObject probe in probes)
+        {
+            probe.GetComponent<ReflectionProbe>().RenderProbe(null);
+        }
+    }
+
 }
