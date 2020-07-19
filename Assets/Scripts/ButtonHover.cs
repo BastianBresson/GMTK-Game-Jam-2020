@@ -8,6 +8,7 @@ public class ButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 {
     [SerializeField] float fadeTime = default;
 
+    #region Emission Colors
     [ColorUsage(true, true)]
     [SerializeField] Color normalColor = default;
 
@@ -19,6 +20,7 @@ public class ButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     [ColorUsage(true, true)]
     [SerializeField] Color selectedHighlightColor = default;
+    #endregion
 
     Button button;
     bool isSelected;
@@ -61,7 +63,7 @@ public class ButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void DeselectButton()
     {
-        isSelected = true;
+        isSelected = false;
 
         StartCoroutine(FadeColorCoroutine(selectedColor, normalColor));
     }

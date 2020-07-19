@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
-public class CanvasHandling : MonoBehaviour
+public class MenuHandling : MonoBehaviour
 {
     [SerializeField] GameObject UI = default;
 
@@ -14,7 +15,7 @@ public class CanvasHandling : MonoBehaviour
 
     private int markedButton;
 
-    private bool isGameJustStart = true;
+    private bool isGameJustStarted = true;
 
     public void OnButtonPressed(int buttonNr)
     {
@@ -52,7 +53,7 @@ public class CanvasHandling : MonoBehaviour
 
     private void CheckAndMarkCompletedLevel()
     {
-        if (isGameJustStart || levelButtons.Count == 0) return;
+        if (isGameJustStarted || levelButtons.Count == 0) return;
         for (int i = 0; i < levelButtons.Count; i++)
         {
             if (GameManager.Instance.IsLevelComplete(i))
@@ -65,7 +66,7 @@ public class CanvasHandling : MonoBehaviour
 
     private void MarkSelectedLevel()
     {
-        if (isGameJustStart || levelButtons.Count == 0) return;
+        if (isGameJustStarted || levelButtons.Count == 0) return;
 
         int currentSelectedLevel = GameManager.Instance.currentLevel;
 
@@ -81,9 +82,9 @@ public class CanvasHandling : MonoBehaviour
         RectTransform button = levelButtons[markedButton].GetComponent<RectTransform>();
         button.sizeDelta = new Vector2(130, 110);
 
-        if (isGameJustStart)
+        if (isGameJustStarted)
         {
-            isGameJustStart = false;
+            isGameJustStarted = false;
         }
     }
 }
