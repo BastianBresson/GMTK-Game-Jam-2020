@@ -6,19 +6,31 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    #region Simple Singleton
-    public static GameManager Instance;
+    #region Singleton
+    private static GameManager _instance;
 
-    private void Awake()
+    public static GameManager Instance
     {
-        Instance = this;
+        get
+        {
+            if (_instance == null)
+            {
+                GameObject gameManager = new GameObject("Game Manager");
+                _instance = gameManager.AddComponent<GameManager>();
+                DontDestroyOnLoad(gameManager);
+            }
+            return _instance;
+        }
     }
     #endregion
 
-    [SerializeField] private List<GameObject> levels = default;
-    public int currentLevel { get; private set; } = 0;
+    private const string CompletedLevelsPath = "CompletedLevels";
 
-    Dictionary<int, bool> completedLevels = new Dictionary<int, bool>();
+    private List<int> levels = new List<int>() { 1, 2 };
+    private int numberOfScenesBeforeLevels = 1;
+    public int currentLevel { get; private set; }
+
+    List<int> completedLevels;
 
     [SerializeField] private GameObject playerGO = default;
     private Player player;
@@ -26,21 +38,16 @@ public class GameManager : MonoBehaviour
     private Vector3 checkpointPosition;
     private Vector3 playerStartPosition;
 
-    [SerializeField] List<GameObject> probes = default;
-
     public void ChangeLevel(int level)
     {
-        StartCoroutine(RefreshProbes());
+        if (level == currentLevel) return;
 
-        int lvl = level - 1;
-        if (lvl == currentLevel) return;
-
-        SwitchLevel(lvl);
+        SwitchLevel(LevelToScene(level));
     }
 
     public void OnLevelComplete()
     {
-        completedLevels[currentLevel] = true;
+        completedLevels.Add(currentLevel);
 
         CheckAllLevelsComplete();
 
@@ -50,20 +57,18 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            int lvl = currentLevel + 1;
+            int nextLevel = currentLevel + 1;
             ResetPlayerPositionToStart();
-            SwitchLevel(lvl);
-            StartCoroutine(RefreshProbes());
+            SwitchLevel(nextLevel);
             ResetCheckPoint();
         }
     }
 
 
-    private void SwitchLevel(int lvl)
+    private void SwitchLevel(int level)
     {
-        levels[currentLevel].SetActive(false);
-        currentLevel = lvl;
-        levels[lvl].SetActive(true);
+        currentLevel = level;
+        SceneManager.LoadScene(level);
     }
 
 
@@ -71,10 +76,7 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < completedLevels.Count; i++)
         {
-            if (!completedLevels[i])
-            {
-                return;
-            }
+            if (completedLevels.Count != levels.Count) return;
         }
 
         AudioManager.Instance.OnGameCompleted();
@@ -84,7 +86,18 @@ public class GameManager : MonoBehaviour
 
     public bool IsLevelComplete(int level)
     {
-        return completedLevels[level];
+        return IsLevelCompleted(level);
+    }
+
+
+    private bool IsLevelCompleted(int level)
+    {
+        if (completedLevels == null || completedLevels.Count == 0)
+        {
+            return false;
+        }
+
+        return completedLevels.Exists(x => x == level);
     }
 
 
@@ -114,12 +127,14 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        playerGO = GameObject.FindWithTag("Player");
+
         playerStartPosition = playerGO.transform.position;
         playerStartPosition.y = 2;
         checkpointPosition = playerStartPosition;
         player = playerGO.GetComponent<Player>();
 
-        SetCompletedLevels();
+        LoadCompletedLevels();
     }
 
 
@@ -135,23 +150,49 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private void SetCompletedLevels()
+    private int LevelToScene(int level)
     {
-        for (int i = 0; i < 9; i++)
-        {
-            completedLevels.Add(i, false);
-        }
+        return (level + numberOfScenesBeforeLevels) - 1;
     }
 
 
-    IEnumerator RefreshProbes()
-    {
-        yield return new WaitForFixedUpdate();
+    #region Save/Load
 
-        foreach (GameObject probe in probes)
+    [Serializable]
+    private class CompletedLevelsObject
+    {
+        public CompletedLevelsObject(List<int> completedLevels)
         {
-            probe.GetComponent<ReflectionProbe>().RenderProbe(null);
+            this.completedLevels = completedLevels;
         }
+
+        public List<int> completedLevels;
     }
 
+
+    private void SaveCompletedLevels()
+    {
+        CompletedLevelsObject completedLevelsObject = new CompletedLevelsObject(completedLevels);
+
+        string completedLevelsString = JsonUtility.ToJson(completedLevelsObject);
+
+        PlayerPrefs.SetString(CompletedLevelsPath, completedLevelsString);
+    }
+
+    private void LoadCompletedLevels()
+    {
+        if (!PlayerPrefs.HasKey(CompletedLevelsPath))
+        {
+            completedLevels = new List<int>();
+            SaveCompletedLevels();
+        }
+        else
+        {
+            string completedLevelsString = PlayerPrefs.GetString(CompletedLevelsPath);
+
+            CompletedLevelsObject completedLevelsObject = JsonUtility.FromJson<CompletedLevelsObject>(completedLevelsString);
+            completedLevels = completedLevelsObject.completedLevels;
+        }
+    }
+    #endregion
 }

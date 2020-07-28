@@ -15,11 +15,8 @@ public class MenuHandling : MonoBehaviour
 
     private int markedButton;
 
-    private bool isGameJustStarted = true;
-
     public void OnButtonPressed(int buttonNr)
     {
-        Debug.Log($"Button {buttonNr} Presesd!");
         GameManager.Instance.ChangeLevel(buttonNr);
 
         UI.SetActive(false);
@@ -31,6 +28,7 @@ public class MenuHandling : MonoBehaviour
         Debug.Log("Exited Game");
         Application.Quit();
     }
+
 
     private void OnEnable()
     {
@@ -53,7 +51,6 @@ public class MenuHandling : MonoBehaviour
 
     private void CheckAndMarkCompletedLevel()
     {
-        if (isGameJustStarted || levelButtons.Count == 0) return;
         for (int i = 0; i < levelButtons.Count; i++)
         {
             if (GameManager.Instance.IsLevelComplete(i))
@@ -66,8 +63,6 @@ public class MenuHandling : MonoBehaviour
 
     private void MarkSelectedLevel()
     {
-        if (isGameJustStarted || levelButtons.Count == 0) return;
-
         int currentSelectedLevel = GameManager.Instance.currentLevel;
 
         RectTransform button = levelButtons[currentSelectedLevel].GetComponent<RectTransform>();
@@ -81,10 +76,5 @@ public class MenuHandling : MonoBehaviour
         if (levelButtons.Count == 0) return;
         RectTransform button = levelButtons[markedButton].GetComponent<RectTransform>();
         button.sizeDelta = new Vector2(130, 110);
-
-        if (isGameJustStarted)
-        {
-            isGameJustStarted = false;
-        }
     }
 }

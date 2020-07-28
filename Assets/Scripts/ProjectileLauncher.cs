@@ -8,7 +8,6 @@ public class ProjectileLauncher : MonoBehaviour
 
     [SerializeField] private int projectilePoolSize = default;
     [SerializeField] private GameObject projectile = default;
-    [SerializeField] private GameObject projectileHolder = default;
 
     [SerializeField] private float launchForce = default;
 
@@ -24,7 +23,7 @@ public class ProjectileLauncher : MonoBehaviour
     {
         for (int i = 0; i < projectilePoolSize; i++)
         {
-            GameObject projectileGO = Instantiate(projectile, projectileHolder.transform);
+            GameObject projectileGO = Instantiate(projectile, transform);
             projectileGO.SetActive(false);
 
             projectilePool.Add(projectileGO);
