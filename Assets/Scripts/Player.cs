@@ -13,27 +13,11 @@ public class Player : MonoBehaviour
     private Rigidbody rb;
 
 
-    public void SetMoveDireciton(float direction)
-    {
-        movementDirection = direction;
-    }
-
-
-    public void SetSteeringDirection(float steering)
-    {
-        steeringDirection = steering;
-    }
-
-    public void ResetPosition(Vector3 position)
-    {
-        rb.velocity = Vector3.zero;
-        transform.position = position;
-    }
-
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
     }
+
 
     private void Update()
     {
@@ -47,5 +31,24 @@ public class Player : MonoBehaviour
         {
             rb.AddTorque(0, steeringDirection * steeringSpeed * Time.deltaTime, 0);
         }
+    }
+
+
+    public void SetMoveDireciton(float direction)
+    {
+        movementDirection = direction;
+    }
+
+
+    public void SetSteeringDirection(float steering)
+    {
+        steeringDirection = steering;
+    }
+
+
+    public void ResetPosition(Vector3 position)
+    {
+        rb.velocity = Vector3.zero;
+        transform.position = position;
     }
 }

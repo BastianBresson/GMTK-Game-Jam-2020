@@ -5,15 +5,15 @@ using UnityEngine;
 
 public class LevelSwitcherMovement : MonoBehaviour
 {
-    [SerializeField] private Vector3 positionFromPlayerOffset = default;
+    [SerializeField] private Vector3 offsetFromPlayer = default;
 
     [SerializeField] private float followSpeed = default;
     [SerializeField] private float heightChangeThreshold = default;
 
     private GameObject player;
 
-    // Start is called before the first frame update
-    void Start()
+
+    private void Start()
     {
         player = GameObject.FindWithTag("Player");
     }
@@ -21,7 +21,27 @@ public class LevelSwitcherMovement : MonoBehaviour
 
     private void Update()
     {
-        Vector3 targetPosition = player.transform.position + positionFromPlayerOffset;
+        Move();
+    }
+
+
+    private void Move()
+    {
+        Vector3 targetPosition = TargetPosition();
+
+        MoveToTargetPosition(targetPosition);
+    }
+
+
+    private void MoveToTargetPosition(Vector3 targetPosition)
+    {
+        transform.position = Vector3.Lerp(transform.position, targetPosition, followSpeed * Time.deltaTime);
+
+    }
+
+    private Vector3 TargetPosition()
+    {
+        Vector3 targetPosition = player.transform.position + offsetFromPlayer;
 
         targetPosition.x = transform.position.x;
 
@@ -30,6 +50,7 @@ public class LevelSwitcherMovement : MonoBehaviour
             targetPosition.y = transform.position.y;
         }
 
-        transform.position = Vector3.Lerp(transform.position, targetPosition, followSpeed * Time.deltaTime);
+        return targetPosition;
     }
+
 }

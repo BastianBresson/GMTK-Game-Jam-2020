@@ -462,8 +462,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2029ac777fa9ecd4c934d21880eb0010, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  positionFromPlayerOffset: {x: 0, y: 2, z: 2}
-  followSpeed: 0.2
+  offsetFromPlayer: {x: 0, y: 0, z: 0}
+  followSpeed: 0.4
   heightChangeThreshold: 2
 --- !u!1 &5802952758552087768
 GameObject:

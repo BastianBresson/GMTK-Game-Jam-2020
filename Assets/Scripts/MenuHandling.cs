@@ -15,6 +15,7 @@ public class MenuHandling : MonoBehaviour
 
     private int markedButton;
 
+
     public void OnButtonPressed(int buttonNr)
     {
         GameManager.Instance.ChangeLevel(buttonNr);
@@ -36,6 +37,9 @@ public class MenuHandling : MonoBehaviour
         Time.fixedDeltaTime = 0.2f * 0.02f;
 
         CheckAndMarkCompletedLevel();
+
+        EnableAndDisableLevelButtons();
+
         MarkSelectedLevel();
     }
 
@@ -53,7 +57,7 @@ public class MenuHandling : MonoBehaviour
     {
         for (int i = 0; i < levelButtons.Count; i++)
         {
-            if (GameManager.Instance.IsLevelComplete(i))
+            if (GameManager.Instance.IsLevelComplete(i+1))
             {
                 levelButtons[i].GetComponent<Image>().color = completedColor;
             }
@@ -61,20 +65,48 @@ public class MenuHandling : MonoBehaviour
     }
 
 
+    private void EnableAndDisableLevelButtons()
+    {
+        for (int i = 0; i < levelButtons.Count; i++)
+        {
+            bool isLevelComplete = GameManager.Instance.IsLevelComplete(i+1);
+            bool isNewestLevel = i+1 == GameManager.Instance.LatestCompletedLevel() + 1;
+
+            Button button = levelButtons[i].GetComponentInChildren<Button>();
+
+            if (!isLevelComplete && !isNewestLevel)
+            {
+                button.interactable = false;
+            }
+            else
+            {
+                button.interactable = true;
+            }
+        }
+    }
+
+
     private void MarkSelectedLevel()
     {
-        int currentSelectedLevel = GameManager.Instance.currentLevel;
+        int currentSelectedLevel = GameManager.Instance.CurrentLevel - 1;
 
-        RectTransform button = levelButtons[currentSelectedLevel].GetComponent<RectTransform>();
-        button.sizeDelta = new Vector2(140, 120);
+        ResizeButton(levelButtons[currentSelectedLevel], 140, 120);
 
         markedButton = currentSelectedLevel;
     }
 
+
     private void UnmarkSelectedLevel()
     {
         if (levelButtons.Count == 0) return;
-        RectTransform button = levelButtons[markedButton].GetComponent<RectTransform>();
-        button.sizeDelta = new Vector2(130, 110);
+
+        ResizeButton(levelButtons[markedButton], 130, 110);
+    }
+
+    
+    private void ResizeButton(GameObject button, int width, int height)
+    {
+        RectTransform buttonRect = button.GetComponent<RectTransform>();
+        buttonRect.sizeDelta = new Vector2(width, height);
     }
 }
