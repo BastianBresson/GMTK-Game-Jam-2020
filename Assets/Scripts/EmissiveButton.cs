@@ -4,11 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class ButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class EmissiveButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] float fadeTime = default;
 
     #region Emission Colors
+    [Header("State and Transition colors")]
     [ColorUsage(true, true)]
     [SerializeField] Color normalColor = default;
 
@@ -25,50 +26,97 @@ public class ButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     Button button;
     bool isSelected;
 
-    private void Start()
+
+    private void Awake()
     {
         button = GetComponent<Button>();
         button.image.material = new Material(button.image.material);
         SetButtonColor(normalColor);
     }
 
+
+    public void SetAsStartButton()
+    {
+        SetButtonColor(selectedColor);
+        isSelected = true;
+    }
+
+
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Color startColor = isSelected ? selectedColor : normalColor;
-        Color targetColor = isSelected ? selectedHighlightColor : normalHighlightColor;
-
-        StartCoroutine(FadeColorCoroutine(startColor, targetColor));
+        FadeFromIdleToHighlighted();
     }
+
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        Color startColor = isSelected ? selectedHighlightColor : normalHighlightColor; 
-        Color targetColor = isSelected ? selectedColor : normalColor;
-
-        StartCoroutine(FadeColorCoroutine(startColor, targetColor));
+        FadeFromHighlightedToIdle();
     }
+
+
+    private void FadeFromIdleToHighlighted()
+    {
+        Color startColor = IdleColor();
+        Color targetColor = HighligtedColor();
+
+        FadeColor(startColor, targetColor);
+    }
+
+
+    private void FadeFromHighlightedToIdle()
+    {
+        Color startColor = HighligtedColor();
+        Color targetColor = IdleColor();
+
+        FadeColor(startColor, targetColor);
+    }
+
+
+    private Color HighligtedColor()
+    {
+        Color currentColor = isSelected ? selectedHighlightColor : normalHighlightColor;
+        return currentColor;
+    }
+
+
+    private Color IdleColor()
+    {
+        Color targetColor = isSelected ? selectedColor : normalColor;
+        return targetColor;
+    }
+
 
     public void OnButtonPressed()
     {
         if (isSelected)
         {
-            StartCoroutine(FadeColorCoroutine(selectedColor, selectedHighlightColor));
+            FadeColor(selectedColor, selectedHighlightColor);
             return;
         }
 
         isSelected = true;
 
-        StartCoroutine(FadeColorCoroutine(normalHighlightColor, selectedHighlightColor));
+        FadeColor(normalHighlightColor, selectedHighlightColor);
     }
+
 
     public void DeselectButton()
     {
+        if (!isSelected) return;
+
         isSelected = false;
 
-        StartCoroutine(FadeColorCoroutine(selectedColor, normalColor));
+        FadeColor(selectedColor, normalColor);
     }
 
-    IEnumerator FadeColorCoroutine(Color currentColor, Color targetColor)
+
+    private void FadeColor(Color fromColor, Color toColor)
+    {
+        StartCoroutine(FadeColorCoroutine(fromColor, toColor));
+    }
+
+
+    private IEnumerator FadeColorCoroutine(Color currentColor, Color targetColor)
     {
         float elapsedTime = 0;
 
@@ -83,6 +131,7 @@ public class ButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
             SetButtonColor(lerpedColor);
         }
     }
+
 
     private void SetButtonColor(Color color)
     {

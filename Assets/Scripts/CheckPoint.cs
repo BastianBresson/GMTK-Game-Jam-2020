@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class CheckPoint : MonoBehaviour
 {
-    private static CheckPoint activeCheckPoint;
+    public static Vector3 LatestCheckpointPosition { get; private set; }
 
+    private static CheckPoint activeCheckPoint;
+    
     [SerializeField] private List<GameObject> acsents = default;
 
     [SerializeField] float targetEmissionIntensity = default;
@@ -15,15 +17,15 @@ public class CheckPoint : MonoBehaviour
 
     private bool isActiveCheckPoint = false;
 
-    private Color emisionColor;
+    private Color emissionColor;
 
     private void Start()
     {
-        emisionColor = acsents[0].GetComponent<Renderer>().material.GetColor("_EmissionColor");
+        emissionColor = acsents[0].GetComponent<Renderer>().material.GetColor("_EmissionColor");
 
         foreach (GameObject acsent in acsents)
         {
-            acsent.GetComponent<Renderer>().material.SetColor("_EmissionColor", emisionColor / targetEmissionIntensity);
+            acsent.GetComponent<Renderer>().material.SetColor("_EmissionColor", emissionColor / targetEmissionIntensity);
         }
     }
 
@@ -31,14 +33,13 @@ public class CheckPoint : MonoBehaviour
     {
         if (isActiveCheckPoint || !other.CompareTag("Player")) return;
 
-        GameManager.Instance.OnCheckpointReached(this);
-
         if (activeCheckPoint != null)
         {
             activeCheckPoint.TurnOff();
         }
 
         activeCheckPoint = this;
+        LatestCheckpointPosition = transform.position;
 
         isActiveCheckPoint = true;
         StartCoroutine(TurnOnAcsentsCoroutine());
@@ -46,7 +47,7 @@ public class CheckPoint : MonoBehaviour
 
     IEnumerator TurnOnAcsentsCoroutine()
     {
-        emisionColor = acsents[0].GetComponent<Renderer>().material.GetColor("_EmissionColor");
+        emissionColor = acsents[0].GetComponent<Renderer>().material.GetColor("_EmissionColor");
 
         float elapsedTime = 0f;
         float multiplier = 1f;
@@ -58,10 +59,15 @@ public class CheckPoint : MonoBehaviour
             multiplier = Mathf.Lerp(multiplier, targetEmissionIntensity, elapsedTime / turnOnAcsentsTime);
             foreach (GameObject acsent in acsents)
             {
-                acsent.GetComponent<Renderer>().material.SetColor("_EmissionColor", emisionColor * multiplier);
+                acsent.GetComponent<Renderer>().material.SetColor("_EmissionColor", emissionColor * multiplier);
             }
         }
 
+    }
+
+    public static void ResetCheckpoint()
+    {
+        LatestCheckpointPosition = Vector3.zero;
     }
 
     public void TurnOff()

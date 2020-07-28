@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,13 +15,26 @@ public class SubLevelSelect : MonoBehaviour
 
     private void Start()
     {
+        AddButtonListeners();
+        SetFirstButtonAsStart();
+    }
+
+
+    private void AddButtonListeners()
+    {
         for (int i = 0; i < buttons.Length; i++)
         {
             // using i directly made all buttons call SwitchSubLevel(i) with i = length. Clousure problem.
-            int copy = i; 
+            int copy = i;
 
             buttons[i].onClick.AddListener(() => SwitchSubLevel(copy));
         }
+    }
+
+
+    private void SetFirstButtonAsStart()
+    {
+        buttons[0].GetComponent<EmissiveButton>().SetAsStartButton();
     }
 
 
@@ -31,8 +45,7 @@ public class SubLevelSelect : MonoBehaviour
         subLevels[currentSubLevel].SetActive(false);
         subLevels[subLevel].SetActive(true);
 
-
-        buttons[currentSubLevel].GetComponent<ButtonHover>().DeselectButton();
+        buttons[currentSubLevel].GetComponent<EmissiveButton>().DeselectButton();
 
         currentSubLevel = subLevel;
     }

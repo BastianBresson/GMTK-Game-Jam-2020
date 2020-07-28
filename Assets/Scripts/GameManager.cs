@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,70 +18,77 @@ public class GameManager : MonoBehaviour
             {
                 GameObject gameManager = new GameObject("Game Manager");
                 _instance = gameManager.AddComponent<GameManager>();
+                _instance.LoadInstance();
                 DontDestroyOnLoad(gameManager);
             }
             return _instance;
         }
     }
+
+    private void LoadInstance()
+    {
+        LoadCompletedLevels();
+    }
     #endregion
+
+    public int CurrentLevel { get; private set; } = 1;
 
     private const string CompletedLevelsPath = "CompletedLevels";
 
-    private List<int> levels = new List<int>() { 1, 2 };
-    private int numberOfScenesBeforeLevels = 1;
-    public int currentLevel { get; private set; }
+    private readonly List<int> levels = new List<int>() { 1, 2 };
+    private readonly int numberOfScenesBeforeLevels = 1;
 
-    List<int> completedLevels;
+    private List<int> completedLevels;
 
-    [SerializeField] private GameObject playerGO = default;
-    private Player player;
-    private CheckPoint currentCheckPoint;
-    private Vector3 checkpointPosition;
-    private Vector3 playerStartPosition;
 
     public void ChangeLevel(int level)
     {
-        if (level == currentLevel) return;
-
-        SwitchLevel(LevelToScene(level));
+        SwitchLevel(level);
     }
+
 
     public void OnLevelComplete()
     {
-        completedLevels.Add(currentLevel);
+        completedLevels.Add(CurrentLevel);
 
-        CheckAllLevelsComplete();
-
-        if (currentLevel == 8) // Last Level
-        {
-            ResetPlayerPositionToStart();
-        }
-        else
-        {
-            int nextLevel = currentLevel + 1;
-            ResetPlayerPositionToStart();
-            SwitchLevel(nextLevel);
-            ResetCheckPoint();
-        }
+        LoadVictorySceneOnAllLevelsCompleted();
+        
+        int nextLevel = CurrentLevel + 1;
+        SwitchLevel(nextLevel);  
     }
 
 
     private void SwitchLevel(int level)
     {
-        currentLevel = level;
-        SceneManager.LoadScene(level);
+        int levelIndex = LevelToScene(level);
+
+        CurrentLevel = levelIndex;
+
+        CheckPoint.ResetCheckpoint();
+
+        SceneManager.LoadScene(levelIndex);
     }
 
 
-    private void CheckAllLevelsComplete()
+    private int LevelToScene(int level)
     {
-        for (int i = 0; i < completedLevels.Count; i++)
-        {
-            if (completedLevels.Count != levels.Count) return;
-        }
+        return (level + numberOfScenesBeforeLevels) - 1;
+    }
+
+
+
+    private void LoadVictorySceneOnAllLevelsCompleted()
+    {
+        if (completedLevels.Count != levels.Count) return;
 
         AudioManager.Instance.OnGameCompleted();
         SceneManager.LoadScene("VictoryScene");
+    }
+
+
+    public int LatestCompletedLevel()
+    {
+        return completedLevels.Any() ? completedLevels.Last() : 0;
     }
 
 
@@ -98,61 +106,6 @@ public class GameManager : MonoBehaviour
         }
 
         return completedLevels.Exists(x => x == level);
-    }
-
-
-    public void OnCheckpointReached(CheckPoint checkPoint)
-    {
-        currentCheckPoint = checkPoint;
-        this.checkpointPosition = checkPoint.transform.position;
-        this.checkpointPosition.y = 2;
-    }
-
-
-    private void ResetCheckPoint()
-    {
-        checkpointPosition = playerStartPosition;
-        if (currentCheckPoint != null)
-        {
-            currentCheckPoint.TurnOff();
-        }
-    }
-
-
-    public void OnPlayerFall()
-    {
-        ResetPlayerPositionToCheckpoint();
-    }
-
-
-    private void Start()
-    {
-        playerGO = GameObject.FindWithTag("Player");
-
-        playerStartPosition = playerGO.transform.position;
-        playerStartPosition.y = 2;
-        checkpointPosition = playerStartPosition;
-        player = playerGO.GetComponent<Player>();
-
-        LoadCompletedLevels();
-    }
-
-
-    private void ResetPlayerPositionToStart()
-    {
-        player.ResetPosition(playerStartPosition);
-    }
-
-
-    private void ResetPlayerPositionToCheckpoint()
-    {
-        player.ResetPosition(checkpointPosition);
-    }
-
-
-    private int LevelToScene(int level)
-    {
-        return (level + numberOfScenesBeforeLevels) - 1;
     }
 
 
