@@ -8,6 +8,6 @@ public class MainMenu : MonoBehaviour
 
     public void OnPlayPressed()
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("Level1");
     }
 }

@@ -41,6 +41,14 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Touch"",
+                    ""type"": ""Button"",
+                    ""id"": ""8f3a5071-bc13-4d8b-bb71-f660b2ae110a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -164,6 +172,44 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""action"": ""Menu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cee3a590-67fd-4bba-85f7-235b282c7e80"",
+                    ""path"": ""<Touchscreen>/press"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Touch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""New action map"",
+            ""id"": ""97334eb9-b19d-4d27-8016-cc1b48d698a9"",
+            ""actions"": [
+                {
+                    ""name"": ""New action"",
+                    ""type"": ""Button"",
+                    ""id"": ""3c4ef8bf-dbef-4a29-aa73-725bd88bdbac"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""6b54b61d-9f2a-41c2-843b-8217472144e2"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""New action"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -175,6 +221,10 @@ public class @InputMaster : IInputActionCollection, IDisposable
         m_Inputs_Movement = m_Inputs.FindAction("Movement", throwIfNotFound: true);
         m_Inputs_Steering = m_Inputs.FindAction("Steering", throwIfNotFound: true);
         m_Inputs_Menu = m_Inputs.FindAction("Menu", throwIfNotFound: true);
+        m_Inputs_Touch = m_Inputs.FindAction("Touch", throwIfNotFound: true);
+        // New action map
+        m_Newactionmap = asset.FindActionMap("New action map", throwIfNotFound: true);
+        m_Newactionmap_Newaction = m_Newactionmap.FindAction("New action", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -227,6 +277,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
     private readonly InputAction m_Inputs_Movement;
     private readonly InputAction m_Inputs_Steering;
     private readonly InputAction m_Inputs_Menu;
+    private readonly InputAction m_Inputs_Touch;
     public struct InputsActions
     {
         private @InputMaster m_Wrapper;
@@ -234,6 +285,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         public InputAction @Movement => m_Wrapper.m_Inputs_Movement;
         public InputAction @Steering => m_Wrapper.m_Inputs_Steering;
         public InputAction @Menu => m_Wrapper.m_Inputs_Menu;
+        public InputAction @Touch => m_Wrapper.m_Inputs_Touch;
         public InputActionMap Get() { return m_Wrapper.m_Inputs; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -252,6 +304,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Menu.started -= m_Wrapper.m_InputsActionsCallbackInterface.OnMenu;
                 @Menu.performed -= m_Wrapper.m_InputsActionsCallbackInterface.OnMenu;
                 @Menu.canceled -= m_Wrapper.m_InputsActionsCallbackInterface.OnMenu;
+                @Touch.started -= m_Wrapper.m_InputsActionsCallbackInterface.OnTouch;
+                @Touch.performed -= m_Wrapper.m_InputsActionsCallbackInterface.OnTouch;
+                @Touch.canceled -= m_Wrapper.m_InputsActionsCallbackInterface.OnTouch;
             }
             m_Wrapper.m_InputsActionsCallbackInterface = instance;
             if (instance != null)
@@ -265,14 +320,55 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Menu.started += instance.OnMenu;
                 @Menu.performed += instance.OnMenu;
                 @Menu.canceled += instance.OnMenu;
+                @Touch.started += instance.OnTouch;
+                @Touch.performed += instance.OnTouch;
+                @Touch.canceled += instance.OnTouch;
             }
         }
     }
     public InputsActions @Inputs => new InputsActions(this);
+
+    // New action map
+    private readonly InputActionMap m_Newactionmap;
+    private INewactionmapActions m_NewactionmapActionsCallbackInterface;
+    private readonly InputAction m_Newactionmap_Newaction;
+    public struct NewactionmapActions
+    {
+        private @InputMaster m_Wrapper;
+        public NewactionmapActions(@InputMaster wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Newaction => m_Wrapper.m_Newactionmap_Newaction;
+        public InputActionMap Get() { return m_Wrapper.m_Newactionmap; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(NewactionmapActions set) { return set.Get(); }
+        public void SetCallbacks(INewactionmapActions instance)
+        {
+            if (m_Wrapper.m_NewactionmapActionsCallbackInterface != null)
+            {
+                @Newaction.started -= m_Wrapper.m_NewactionmapActionsCallbackInterface.OnNewaction;
+                @Newaction.performed -= m_Wrapper.m_NewactionmapActionsCallbackInterface.OnNewaction;
+                @Newaction.canceled -= m_Wrapper.m_NewactionmapActionsCallbackInterface.OnNewaction;
+            }
+            m_Wrapper.m_NewactionmapActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @Newaction.started += instance.OnNewaction;
+                @Newaction.performed += instance.OnNewaction;
+                @Newaction.canceled += instance.OnNewaction;
+            }
+        }
+    }
+    public NewactionmapActions @Newactionmap => new NewactionmapActions(this);
     public interface IInputsActions
     {
         void OnMovement(InputAction.CallbackContext context);
         void OnSteering(InputAction.CallbackContext context);
         void OnMenu(InputAction.CallbackContext context);
+        void OnTouch(InputAction.CallbackContext context);
+    }
+    public interface INewactionmapActions
+    {
+        void OnNewaction(InputAction.CallbackContext context);
     }
 }
